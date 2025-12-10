@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+<script src="/htmx.min.js"></script>
+<script src="/response-targets.min.js"></script>
+<script src="/remove-me.js"></script>
 
 <head>
-    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
             font-family: sans-serif;
@@ -19,23 +23,17 @@
             display: flex;
             flex-direction: column;
             width: 100%;
+            /* (1) 預設為首頁的卡片樣式 (較小) */
             max-width: 600px;
             min-height: 50vh;
+            background: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
             margin: auto;
             transition: max-width 0.5s, min-height 0.5s, box-shadow 0.5s;
-            background: white;
         }
 
-        body:not(.no-nav) #app-container {
-            max-width: 100%;
-            /* 佔滿視窗寬度 */
-            min-height: 100vh;
-            /* 佔滿整個視窗高度 */
-            box-shadow: none;
-            /* 移除卡片陰影，營造全螢幕應用程式感 */
-        }
-
+        /* -------------------------------------- */
+        /* (2) 針對主功能頁面（/app），將容器放大至全螢幕 */
         body:not(.no-nav) #main {
             align-items: flex-start;
             /* 讓內容從頂部開始 */
@@ -45,6 +43,19 @@
             /* 移除外層 padding，讓 Tab 內容區域貼邊 */
         }
 
+        /* (3) 調整主內容區 #main 在全螢幕模式下的行為 */
+        body:not(.no-nav) #app-container {
+            max-width: 100vw;
+            /* 確保全寬度，覆寫 max-width: 600px; [cite: 7] */
+            min-height: 100vh;
+            /* 確保全高度，覆寫 min-height: 50vh; [cite: 8] */
+            margin: 0;
+            /* 移除 auto margin */
+            box-shadow: none;
+            /* 移除卡片陰影，覆寫 box-shadow [cite: 8] */
+        }
+
+        /* 讓 Tab 內容區域佔滿 #main 空間，並在內部添加 padding */
         #tab-content {
             padding: 20px;
             /* 這裡才是 Tab 內容的邊距 */
@@ -53,6 +64,8 @@
             /* 確保在全螢幕模式下佔滿剩餘高度 (選用) */
             flex-grow: 1;
         }
+
+        /* -------------------------------------- */
 
         #main {
             display: flex;
@@ -64,59 +77,34 @@
             box-sizing: border-box;
         }
 
-        /* 新增導航列樣式 */
         #navbar {
-            display: flex;
-            justify-content: space-around;
             background-color: #343a40;
-            padding: 10px 0;
-            border-bottom: 3px solid #007bff;
-        }
-
-        #navbar .nav-link {
-            display: none;
-        }
-
-        /* 訪客模式 (Guest): 只顯示 搜尋 */
-        .tab-guest #tab-search {
-            display: block;
-        }
-
-        /* 會員模式 (Member): 顯示所有 Tab */
-        .tab-member #tab-search,
-        .tab-member #tab-edit,
-        .tab-member #tab-custom {
-            display: block;
-        }
-
-
-        .no-nav #navbar,
-        .no-nav #tab-content {
-            display: none;
-        }
-
-        /* 在沒有導航列時，主內容區域需要獨佔整個 #app-container */
-        .no-nav #main {
+            /* 深色背景 */
+            padding: 10px 20px;
+            display: flex;
+            justify-content: flex-start;
+            /* 讓 Tab 靠左對齊 */
             align-items: center;
-            justify-content: center;
-            height: 100%;
-            padding: 20px;
-            /* 在首頁模式下，確保內容仍然有 padding */
+            width: 100%;
+            box-sizing: border-box;
+            /* 確保在 /app 頁面時，它位於 #app-container 的頂部 */
+            flex-shrink: 0;
         }
 
-        .nav-link {
-            color: white;
-            text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            transition: background-color 0.3s;
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin: 0;
         }
 
-        .nav-link.active,
-        .nav-link:hover {
-            background-color: #007bff;
-        }
+        /* ... (Navbar 樣式保持不變) ... */
 
+        /* -------------------------------------- */
+        /* Start 按鈕放大置中樣式 (來自上一個步驟) */
         .actions {
             display: flex;
             justify-content: center;
@@ -130,25 +118,59 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
 
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        /* -------------------------------------- */
+        /* 新增: 處理隱藏導航列的樣式 */
+        .no-nav #navbar,
+        .no-nav #tab-content {
+            /* Tab Content 也要隱藏 */
+            display: none;
+        }
+
+        /* 在沒有導航列時，主內容區域需要獨佔整個 #app-container */
+        .no-nav #main {
+            align-items: center;
+            /* 讓首頁內容在容器內垂直置中 */
+            justify-content: center;
+            height: 100%;
+            /* 確保 main 佔滿空間 */
+        }
+
+        /* -------------------------------------- */
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+            /* 增加 Tab 之間的間距 */
+            font-weight: bold;
+        }
+
+        .nav-link.active,
+        .nav-link:hover {
+            background-color: #007bff;
+            color: white;
         }
 
         /* ... (其他 CSS 樣式保持不變) ... */
     </style>
 </head>
 
-<body hx-ext="response-targets, remove-me" hx-target-error="#toast" hx-on::before-swap="doWrap(event)"
-    class="tab-{{tabType}} {{#if tabType}}no-nav{{/if}}">
+<body hx-ext="response-targets, remove-me" hx-target-error="#toast" hx-on::before-swap="doWrap(event)">
 
     <div id="app-container">
         <nav id="navbar">
-            <a href="#search" id="tab-search" class="nav-link active" data-content-url="/search">🔍 搜尋</a>
-            <a href="#edit" id="tab-edit" class="nav-link" data-content-url="/edit">✏️ 編輯</a>
-            <a href="#custom" id="tab-custom" class="nav-link" data-content-url="/custom">📊 自選功能</a>
+            <a id="tab-search" class="nav-link active" href="#search" data-content-url="/search">
+                <i class="fa-solid fa-magnifying-glass"></i> 搜尋
+            </a>
+            <a id="tab-edit" class="nav-link" href="#edit" data-content-url="/edit">
+                <i class="fa-solid fa-pen-to-square"></i> 編輯
+            </a>
+            <a id="tab-custom" class="nav-link" href="#custom" data-content-url="/custom">
+                <i class="fa-solid fa-chart-line"></i> 自選功能
+            </a>
         </nav>
 
         <main id="main">
@@ -159,44 +181,46 @@
     <div id="toast"></div>
 
     <script>
+        // ... (doWrap 函數保持不變) ...
+
+        // 頁面載入時檢查當前路徑，決定是否顯示導航列
         document.addEventListener('DOMContentLoaded', () => {
+            // 檢查當前路徑是否為獨立首頁 "/" 或 "/app"
             const path = window.location.pathname;
             const body = document.body;
 
-            // 判斷是否為會員/訪客主頁面
-            const isAppPage = path.startsWith('/app/');
-
-            // 修正 no-nav 邏輯：只有首頁和登入頁需要 no-nav
-            if (path === '/' || path === '/login') {
+            // 如果是獨立首頁，則添加 no-nav 類別來隱藏導航列
+            if (path === '/') {
                 body.classList.add('no-nav');
-            } else {
+            } else if (path === '/app') {
                 body.classList.remove('no-nav');
             }
 
             // 處理 Tab 點擊事件 (僅在 /app 頁面需要)
-            if (isAppPage) {
+            if (path === '/app') {
                 const tabs = document.querySelectorAll('#navbar .nav-link');
+                const main = document.getElementById('tab-content');
 
-                // ... (Tab 點擊和初始載入邏輯保持不變，它會預設載入 #tab-search) ...
-
-                // --- Tab 點擊邏輯 ---
                 tabs.forEach(tab => {
-                    // ... (Tab 點擊邏輯保持不變) ...
+                    tab.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const url = this.getAttribute('data-content-url');
+
+                        // 移除所有 active 狀態，並為當前點擊的 Tab 加上 active 狀態
+                        tabs.forEach(t => t.classList.remove('active'));
+                        this.classList.add('active');
+
+                        // 使用 htmx 載入內容到 #tab-content
+                        htmx.ajax('GET', url, { target: '#tab-content', swap: 'innerHTML' });
+
+                        // 更新 URL Hash，保持狀態
+                        history.replaceState(null, '', '/app' + this.getAttribute('href'));
+                    });
                 });
 
-                // --- 初始載入 Tab 內容 ---
-                // 檢查哪些 Tab 是可見的，並預設載入第一個可見的 Tab
-                let initialTab = document.querySelector('.tab-{{tabType}} .nav-link[style*="display: block"]');
-                if (!initialTab) {
-                    // 如果 CSS 尚未生效，預設載入 #tab-search
-                    initialTab = document.querySelector('#tab-search');
-                }
-
+                // 初始載入 Tab 內容 (預設載入 /search)
+                const initialTab = document.querySelector('#tab-search');
                 if (initialTab) {
-                    // 設定 active 狀態
-                    tabs.forEach(t => t.classList.remove('active'));
-                    initialTab.classList.add('active');
-
                     const initialUrl = initialTab.getAttribute('data-content-url');
                     // 確保 htmx 已載入
                     if (htmx) {
@@ -206,8 +230,6 @@
             }
         });
     </script>
-
-    
 </body>
 
 </html>

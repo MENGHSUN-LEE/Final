@@ -1,0 +1,11 @@
+<div id="navbar-content">
+    <a id="tab-search" class="nav-link active" href="#search" data-content-url="/search">
+        🔍 搜尋
+    </a>
+    <a id="tab-edit" class="nav-link" href="#edit" data-content-url="/edit">
+        ✏️ 編輯
+    </a>
+    <a id="tab-custom" class="nav-link" href="#custom" data-content-url="/custom">
+        📊 自選功能
+    </a>
+</div>
