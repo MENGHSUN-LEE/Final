@@ -161,7 +161,7 @@
 <body hx-ext="response-targets, remove-me" hx-target-error="#toast" hx-on::before-swap="doWrap(event)">
 
     <div id="app-container">
-        <nav id="navbar">
+        {{!-- <nav id="navbar">
             <a id="tab-search" class="nav-link active" href="#search" data-content-url="/search">
                 <i class="fa-solid fa-magnifying-glass"></i> 搜尋
             </a>
@@ -171,65 +171,80 @@
             <a id="tab-custom" class="nav-link" href="#custom" data-content-url="/custom">
                 <i class="fa-solid fa-chart-line"></i> 自選功能
             </a>
-        </nav>
+        </nav> --}}
 
-        <main id="main">
-            {{{body}}}
-        </main>
-    </div>
+        <div id="app-container">
+            <nav id="navbar">
+                {{{navbar_content}}}
+            </nav>
 
-    <div id="toast"></div>
+            <main id="main">
+                {{{body}}}
+            </main>
+        </div>
 
-    <script>
-        // ... (doWrap 函數保持不變) ...
+        <div id="toast"></div>
 
-        // 頁面載入時檢查當前路徑，決定是否顯示導航列
-        document.addEventListener('DOMContentLoaded', () => {
-            // 檢查當前路徑是否為獨立首頁 "/" 或 "/app"
-            const path = window.location.pathname;
-            const body = document.body;
-
-            // 如果是獨立首頁，則添加 no-nav 類別來隱藏導航列
-            if (path === '/') {
-                body.classList.add('no-nav');
-            } else if (path === '/app') {
-                body.classList.remove('no-nav');
-            }
-
-            // 處理 Tab 點擊事件 (僅在 /app 頁面需要)
-            if (path === '/app') {
-                const tabs = document.querySelectorAll('#navbar .nav-link');
-                const main = document.getElementById('tab-content');
-
-                tabs.forEach(tab => {
-                    tab.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        const url = this.getAttribute('data-content-url');
-
-                        // 移除所有 active 狀態，並為當前點擊的 Tab 加上 active 狀態
-                        tabs.forEach(t => t.classList.remove('active'));
-                        this.classList.add('active');
-
-                        // 使用 htmx 載入內容到 #tab-content
-                        htmx.ajax('GET', url, { target: '#tab-content', swap: 'innerHTML' });
-
-                        // 更新 URL Hash，保持狀態
-                        history.replaceState(null, '', '/app' + this.getAttribute('href'));
-                    });
-                });
-
-                // 初始載入 Tab 內容 (預設載入 /search)
-                const initialTab = document.querySelector('#tab-search');
-                if (initialTab) {
-                    const initialUrl = initialTab.getAttribute('data-content-url');
-                    // 確保 htmx 已載入
-                    if (htmx) {
-                        htmx.ajax('GET', initialUrl, { target: '#tab-content', swap: 'innerHTML' });
-                    }
+        <script>
+            function doWrap(e) {
+                if (e.detail.isError) {
+                    e.detail.serverResponse = `<div remove-me="10s" style="background-color: #dc3545c0; color: yellow;">${e.detail.serverResponse}</div>`;
                 }
             }
-        });
-    </script>
+            htmx.on("htmx:beforeSwap", doWrap);
+            // 頁面載入時檢查當前路徑，決定是否顯示導航列和啟動 Tab 邏輯
+            document.addEventListener('DOMContentLoaded', () => {
+                // 檢查當前路徑是否為獨立頁面 (首頁, 註冊, 登入) 或應用程式頁面 "/app/*"
+                const path = window.location.pathname;
+                const body = document.body;
+
+                // 判斷是否為獨立的卡片頁面：首頁 "/", 註冊 "/signup", 登入 "/login"
+                const isCardPage = path === '/' || path === '/signup' || path === '/login'; // <-- 新增 '/login'
+
+                const isAppPage = path.startsWith('/app/');
+
+                if (isCardPage) { // 如果是獨立卡片頁面，則添加 no-nav 類別 (隱藏 Navbar + 置中)
+                    body.classList.add('no-nav');
+                } else if (isAppPage) { // App 頁面顯示導航列，並套用全螢幕樣式
+                    body.classList.remove('no-nav');
+                }
+
+                // 處理 Tab 點擊事件 (僅在 App 頁面需要)
+                if (isAppPage) { // <-- 使用 isAppPage 來判斷是否執行 Tab 邏輯
+                    const tabs = document.querySelectorAll('#navbar .nav-link');
+                    const tabContent = document.getElementById('tab-content'); // <-- 確保這個 ID 是正確的
+
+                    tabs.forEach(tab => {
+                        tab.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            const url = this.getAttribute('data-content-url');
+
+                            // 移除所有 active 狀態，並為當前點擊的 Tab 加上 active 狀態
+                            tabs.forEach(t => t.classList.remove('active'));
+                            this.classList.add('active');
+
+                            // 使用 htmx 載入內容到 #tab-content
+                            htmx.ajax('GET', url, { target: '#tab-content', swap: 'innerHTML' });
+
+                            // 更新 URL Hash，保持狀態
+                            // 例如：/app/user#search 或 /app/guest#edit
+                            history.replaceState(null, '', path + this.getAttribute('href'));
+                        });
+                    });
+
+                    // 初始載入 Tab 內容 (預設載入第一個 Tab 的內容)
+                    const initialTab = tabs[0];
+                    if (initialTab && tabContent) {
+                        const initialUrl = initialTab.getAttribute('data-content-url');
+                        if (htmx) {
+                            htmx.ajax('GET', initialUrl, { target: '#tab-content', swap: 'innerHTML' });
+                            // 設置初始 URL Hash
+                            history.replaceState(null, '', path + initialTab.getAttribute('href'));
+                        }
+                    }
+                }
+            });
+        </script>
 </body>
 
 </html>

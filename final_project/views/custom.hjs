@@ -1,0 +1,24 @@
+<div class="stack">
+    <h2>自選功能 - 進階分析</h2>
+    <p>此分頁用於實現：**多國家歷年趨勢對比圖表**。</p>
+    <hr>
+
+    <fieldset style="margin-top: 20px;">
+        <legend>8. 多國家趨勢對比</legend>
+        <div class="form-group">
+            <label for="countrySelectMulti">選擇多個國家 (使用 Ctrl/Cmd 選擇):</label>
+            <select id="countrySelectMulti" multiple size="5" style="width: 100%; min-height: 100px;">
+                <option value="TWN">台灣 (Placeholder)</option>
+                <option value="JPN">日本 (Placeholder)</option>
+                <option value="USA">美國 (Placeholder)</option>
+                <option value="CHN">中國 (Placeholder)</option>
+                <option value="KOR">韓國 (Placeholder)</option>
+            </select>
+        </div>
+        <button class="btn-secondary" style="margin-top: 10px;">顯示對比趨勢</button>
+        <div id="multiTrendChart" style="margin-top: 15px; border: 1px dashed #ccc; padding: 20px; text-align: center; min-height: 300px;">
+            多國家趨勢對比圖表將在這裡顯示...
+        </div>
+    </fieldset>
+
+</div>

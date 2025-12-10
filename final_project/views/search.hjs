@@ -1,0 +1,82 @@
+<div class="stack">
+    <h2>搜尋 - 數據查詢與分析</h2>
+    <p>此處將實作：單一國家趨勢、區域排名、關鍵字查找等功能。</p>
+    <hr>
+
+    <fieldset style="margin-top: 20px;">
+        <legend>1. 單一國家歷年趨勢</legend>
+        <div class="form-group">
+            <label for="countrySelect1">選擇國家:</label>
+            <select id="countrySelect1" class="full-width-select" style="width: 100%;">
+                <option value="" disabled selected>-- 選擇一個國家 --</option>
+                <option value="TWN">台灣 (Placeholder)</option>
+                <option value="JPN">日本 (Placeholder)</option>
+                <option value="USA">美國 (Placeholder)</option>
+            </select>
+        </div>
+        <div id="countryTrendChart" style="margin-top: 15px; border: 1px dashed #ccc; padding: 20px; text-align: center; min-height: 200px;">
+            圖表/趨勢數據將在這裡顯示...
+        </div>
+    </fieldset>
+
+    <fieldset style="margin-top: 20px;">
+        <legend>2. 特定次區域排名</legend>
+        <div style="display: flex; gap: 20px;">
+            <div class="form-group" style="flex: 1;">
+                <label for="subRegionSelect">選擇次區域:</label>
+                <select id="subRegionSelect" style="width: 100%;">
+                    <option value="" disabled selected>-- 選擇次區域 --</option>
+                    <option value="EA">東亞 (Placeholder)</option>
+                    <option value="NA">北美 (Placeholder)</option>
+                </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label for="yearSelect2">選擇年份:</label>
+                <select id="yearSelect2" style="width: 100%;">
+                    <option value="" disabled selected>-- 選擇年份 --</option>
+                    <option value="2020">2020 (Placeholder)</option>
+                    <option value="2021">2021 (Placeholder)</option>
+                </select>
+            </div>
+        </div>
+        <div id="subRegionRank" style="margin-top: 15px; border: 1px dashed #ccc; padding: 20px; text-align: center; min-height: 100px;">
+            排名結果將在這裡顯示...
+        </div>
+    </fieldset>
+    
+    <fieldset style="margin-top: 20px;">
+        <legend>3. 區域最大預期壽命</legend>
+        <div style="display: flex; gap: 20px;">
+            <div class="form-group" style="flex: 1;">
+                <label for="regionSelect3">選擇區域:</label>
+                <select id="regionSelect3" style="width: 100%;">
+                    <option value="" disabled selected>-- 選擇區域 --</option>
+                    <option value="Asia">亞洲 (Placeholder)</option>
+                    <option value="Americas">美洲 (Placeholder)</option>
+                </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label for="yearSelect3">選擇年份:</label>
+                <select id="yearSelect3" style="width: 100%;">
+                    <option value="" disabled selected>-- 選擇年份 --</option>
+                    <option value="2022">2022 (Placeholder)</option>
+                </select>
+            </div>
+        </div>
+        <div id="maxLifeExpectancy" style="margin-top: 15px; border: 1px dashed #ccc; padding: 20px; text-align: center; min-height: 100px;">
+            區域/次區域結果將在這裡顯示...
+        </div>
+    </fieldset>
+
+    <fieldset style="margin-top: 20px;">
+        <legend>4. 國家名稱關鍵字搜尋</legend>
+        <div class="form-group">
+            <label for="keywordInput">輸入國家關鍵字:</label>
+            <input type="text" id="keywordInput" placeholder="例如：China" style="width: 100%; padding: 8px;">
+        </div>
+        <div id="keywordResults" style="margin-top: 15px; border: 1px dashed #ccc; padding: 20px; text-align: center; min-height: 100px;">
+            結果將顯示匹配的國家及最近年份壽命...
+        </div>
+    </fieldset>
+
+</div>

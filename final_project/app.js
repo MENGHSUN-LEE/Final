@@ -2,9 +2,10 @@ const express = require('express');
 const db = require('mysql2'); 
 const app = express();
 const configs = require('./config');
+const path = require('path');
 
 app.set('view engine', 'hjs');
-app.set('views', './views'); 
+app.set('views', path.join(__dirname, 'views'));
 
 // 設置靜態檔案路徑 (例如 CSS/JS/圖片)
 app.use(express.static("public")); 
