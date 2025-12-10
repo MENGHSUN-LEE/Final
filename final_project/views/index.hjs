@@ -2,16 +2,27 @@
     <h1 class="text-center">歡迎來到預期壽命數據工具</h1>
     <h2 class="text-center" style="margin-bottom: 30px;">Life Expectancy Data Tool</h2>
     
-    <p class="text-center">本網站提供全球國家/地區的出生時預期壽命數據的查詢、分析與維護功能。</p>
+    <p class="text-center">請選擇您的存取方式：</p>
 
     <div class="actions" style="margin-top: 40px;">
         <button 
-            id="startBtn" 
+            id="guestLoginBtn" 
+            class="btn" 
+            type="button" 
+            style="width: 50%; font-size: 16px; margin-right: 10px;"
+            onclick="window.location.href='/app/guest';" 
+        >
+            訪客登入 (僅搜尋)
+        </button>
+
+        <button 
+            id="memberLoginBtn" 
             class="btn-primary" 
             type="button" 
-            onclick="window.location.href='/app';" 
+            style="width: 50%; font-size: 16px; margin-left: 10px;"
+            onclick="window.location.href='/login';" 
         >
-             Start
+            會員登入
         </button>
     </div>
 </div>

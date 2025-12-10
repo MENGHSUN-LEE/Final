@@ -1,0 +1,36 @@
+<section id="page-login" class="card stack">
+    <h2>會員登入</h2>
+
+    <form class="stack" hx-post="/login" hx-target="this" hx-swap="outerHTML">
+        <div class="actions" style="margin-top: 12px;">
+            <button 
+                id="loginBtn" 
+                class="btn-primary" 
+                type="button" 
+                onclick="window.location.href='/app/member';"
+            >
+                登入
+            </button>
+            
+            <button id="signupToggleBtn" class="btn" type="button" 
+                    hx-get="/signup-form" hx-target="#page-login" hx-swap="outerHTML">
+                註冊
+            </button>
+        </div>
+    </form>
+</section>
+
+<script>
+    // 密碼切換顯示/隱藏功能 - 可保留，但需確保只針對當前頁面元素操作
+    document.addEventListener('DOMContentLoaded', () => {
+        const togglePassword = document.getElementById('togglePassword');
+        if (togglePassword) {
+            togglePassword.addEventListener('click', function (e) {
+                const passwordInput = document.getElementById('loginPassword');
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                e.target.textContent = type === 'password' ? 'visibility_off' : 'visibility';
+            });
+        }
+    });
+</script>

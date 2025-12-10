@@ -73,17 +73,35 @@
             border-bottom: 3px solid #007bff;
         }
 
-        /* -------------------------------------- */
-        /* 新增: 處理隱藏導航列的樣式 */
+        #navbar .nav-link {
+            display: none;
+        }
+
+        /* 訪客模式 (Guest): 只顯示 搜尋 */
+        .tab-guest #tab-search {
+            display: block;
+        }
+
+        /* 會員模式 (Member): 顯示所有 Tab */
+        .tab-member #tab-search,
+        .tab-member #tab-edit,
+        .tab-member #tab-custom {
+            display: block;
+        }
+
+
         .no-nav #navbar,
+        .no-nav #tab-content {
+            display: none;
+        }
 
         /* 在沒有導航列時，主內容區域需要獨佔整個 #app-container */
         .no-nav #main {
             align-items: center;
-            /* 讓首頁內容在容器內垂直置中 */
             justify-content: center;
             height: 100%;
-            /* 確保 main 佔滿空間 */
+            padding: 20px;
+            /* 在首頁模式下，確保內容仍然有 padding */
         }
 
         .nav-link {
@@ -112,17 +130,6 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
 
-        .no-nav #navbar,
-        .no-nav #tab-content {
-            display: none;
-        }
-
-        .no-nav #main {
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-        }
-
         .card {
             background: white;
             padding: 30px;
@@ -134,7 +141,8 @@
     </style>
 </head>
 
-<body hx-ext="response-targets, remove-me" hx-target-error="#toast" hx-on::before-swap="doWrap(event)">
+<body hx-ext="response-targets, remove-me" hx-target-error="#toast" hx-on::before-swap="doWrap(event)"
+    class="tab-{{tabType}} {{#if tabType}}no-nav{{/if}}">
 
     <div id="app-container">
         <nav id="navbar">
@@ -151,46 +159,44 @@
     <div id="toast"></div>
 
     <script>
-        // ... (doWrap 函數保持不變) ...
-
-        // 頁面載入時檢查當前路徑，決定是否顯示導航列
         document.addEventListener('DOMContentLoaded', () => {
-            // 檢查當前路徑是否為獨立首頁 "/" 或 "/app"
             const path = window.location.pathname;
             const body = document.body;
 
-            // 如果是獨立首頁，則添加 no-nav 類別來隱藏導航列
-            if (path === '/') {
+            // 判斷是否為會員/訪客主頁面
+            const isAppPage = path.startsWith('/app/');
+
+            // 修正 no-nav 邏輯：只有首頁和登入頁需要 no-nav
+            if (path === '/' || path === '/login') {
                 body.classList.add('no-nav');
-            } else if (path === '/app') {
+            } else {
                 body.classList.remove('no-nav');
             }
 
             // 處理 Tab 點擊事件 (僅在 /app 頁面需要)
-            if (path === '/app') {
+            if (isAppPage) {
                 const tabs = document.querySelectorAll('#navbar .nav-link');
-                const main = document.getElementById('tab-content');
 
+                // ... (Tab 點擊和初始載入邏輯保持不變，它會預設載入 #tab-search) ...
+
+                // --- Tab 點擊邏輯 ---
                 tabs.forEach(tab => {
-                    tab.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        const url = this.getAttribute('data-content-url');
-
-                        // 移除所有 active 狀態，並為當前點擊的 Tab 加上 active 狀態
-                        tabs.forEach(t => t.classList.remove('active'));
-                        this.classList.add('active');
-
-                        // 使用 htmx 載入內容到 #tab-content
-                        htmx.ajax('GET', url, { target: '#tab-content', swap: 'innerHTML' });
-
-                        // 更新 URL Hash，保持狀態
-                        history.replaceState(null, '', '/app' + this.getAttribute('href'));
-                    });
+                    // ... (Tab 點擊邏輯保持不變) ...
                 });
 
-                // 初始載入 Tab 內容 (預設載入 /search)
-                const initialTab = document.querySelector('#tab-search');
+                // --- 初始載入 Tab 內容 ---
+                // 檢查哪些 Tab 是可見的，並預設載入第一個可見的 Tab
+                let initialTab = document.querySelector('.tab-{{tabType}} .nav-link[style*="display: block"]');
+                if (!initialTab) {
+                    // 如果 CSS 尚未生效，預設載入 #tab-search
+                    initialTab = document.querySelector('#tab-search');
+                }
+
                 if (initialTab) {
+                    // 設定 active 狀態
+                    tabs.forEach(t => t.classList.remove('active'));
+                    initialTab.classList.add('active');
+
                     const initialUrl = initialTab.getAttribute('data-content-url');
                     // 確保 htmx 已載入
                     if (htmx) {

@@ -1,22 +1,156 @@
 docker network create my-final-net
 
+docker cp C:\Users\417\Downloads\data1.csv final-mysql:/var/lib/mysql-files/data1.csv
+docker cp C:\Users\417\Downloads\data2.csv final-mysql:/var/lib/mysql-files/data2.csv
+
 --DataBase 的 docker --
 
 docker run --name final-mysql --env "MYSQL_ROOT_PASSWORD=417" --network my-final-net -p 3306:3306 --detach mysql:latest
 docker start final-mysql
 docker exec -it final-mysql mysql -p
 
+-- 建立可以導入csv的資料表 --
+
 CREATE DATABASE final_db;
 USE final_db;
 
-CREATE TABLE Users (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
-    company VARCHAR(100),
-    email VARCHAR(100) NOT NULL UNIQUE,
-    phone VARCHAR(20),
-    password VARCHAR(255) NOT NULL,
-    plan VARCHAR(50) DEFAULT 'trial',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE data1 (
+    Entity          VARCHAR(100),
+    Code            CHAR(10),
+    Year            INT,
+    LifeExpectancy  DECIMAL(8,4)
+);
+
+CREATE TABLE data2 (
+    name                       VARCHAR(100),
+    `alpha-2`                  VARCHAR(10),
+    `alpha-3`                  VARCHAR(10),
+    `country-code`             INT,
+    `iso_3166-2`               VARCHAR(50),
+    region                     VARCHAR(50),
+    `sub-region`               VARCHAR(50),
+    `intermediate-region`      VARCHAR(50),
+    `region-code`              INT NULL,
+    `sub-region-code`          INT NULL,
+    `intermediate-region-code` INT NULL
+);
+
+LOAD DATA INFILE '/var/lib/mysql-files/data1.csv'
+INTO TABLE data1
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES;
+
+LOAD DATA INFILE '/var/lib/mysql-files/data2.csv'
+INTO TABLE data2
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+(
+    @name,
+    @a2,
+    @a3,
+    @cc,
+    @iso,
+    @region,
+    @sub,
+    @inter,
+    @rc,
+    @src,
+    @irc
+)
+SET
+    name                       = NULLIF(TRIM(@name), ''),
+    `alpha-2`                  = NULLIF(TRIM(@a2), ''),
+    `alpha-3`                  = NULLIF(TRIM(@a3), ''),
+    `country-code`             = NULLIF(TRIM(@cc), ''),
+    `iso_3166-2`               = NULLIF(TRIM(@iso), ''),
+    region                     = NULLIF(TRIM(@region), ''),
+    `sub-region`               = NULLIF(TRIM(@sub), ''),
+    `intermediate-region`      = NULLIF(TRIM(@inter), ''),
+    `region-code`              = NULLIF(TRIM(@rc), ''),
+    `sub-region-code`          = NULLIF(TRIM(@src), ''),
+    `intermediate-region-code` = NULLIF(TRIM(@irc), '');
+
+-- 刪除data1 中 Code 是 NULL --
+DELETE FROM data1
+WHERE Code IS NULL;
+DELETE FROM data1
+WHERE Code = '';
+DELETE FROM data1
+WHERE TRIM(Code) = '';
+
+-- 移除非國家地區 Antarctica（南極洲）
+-- 排除非標準國別代碼（OWID_ 開頭）
+-- 移除缺少國家代碼的資料
+
+CREATE TABLE countries (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    alpha2 CHAR(2),
+    alpha3 CHAR(3),
+    country_code INT,
+    iso3166_2 VARCHAR(20),
+    region VARCHAR(50),
+    subregion VARCHAR(50),
+    intermediate_region VARCHAR(50),
+    region_code INT,
+    subregion_code INT,
+    intermediate_region_code INT
+);
+
+DELETE FROM countries
+WHERE
+    name = 'Antarctica'
+    OR alpha3 IS NULL
+    OR alpha3 = ''
+    OR alpha3 LIKE 'OWID_%';
+
+LOAD DATA INFILE '/var/lib/mysql-files/data2.csv'
+INTO TABLE countries
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+(
+    @name,
+    @alpha2,
+    @alpha3,
+    @cc,
+    @iso2,
+    @region,
+    @subregion,
+    @inter,
+    @rc,
+    @src,
+    @irc
+)
+SET
+    name                     = NULLIF(TRIM(@name), ''),
+    alpha2                   = NULLIF(TRIM(@alpha2), ''),
+    alpha3                   = NULLIF(TRIM(@alpha3), ''),
+    country_code             = NULLIF(TRIM(@cc), ''),
+    iso3166_2                = NULLIF(TRIM(@iso2), ''),
+    region                   = NULLIF(TRIM(@region), ''),
+    subregion                = NULLIF(TRIM(@subregion), ''),
+    intermediate_region      = NULLIF(TRIM(@inter), ''),
+    region_code              = NULLIF(TRIM(@rc), ''),
+    subregion_code           = NULLIF(TRIM(@src), ''),
+    intermediate_region_code = NULLIF(TRIM(@irc), '');
+
+DELETE FROM countries WHERE alpha3 LIKE 'OWID_%';
+DELETE FROM countries WHERE name = 'Antarctica';
+DELETE FROM countries WHERE alpha3 IS NULL OR alpha3 = '';
+
+-- 比對 data1.Code 與 countries.alpha3
+DELETE FROM data1
+WHERE Code NOT IN (
+    SELECT alpha3 FROM countries
 );
 
 
@@ -40,4 +174,19 @@ docker exec -it final-dev bash
 cd /app
 node app.js
 
+
+
+final_project/
+├── app.js                   # Express 伺服器主入口：啟動伺服器、設置中間件、資料庫連線注入
+├── config.js                # 資料庫連線配置：儲存 MySQL 登入資訊 (user, password, host)
+├── routes/                  # 應用程式路由邏輯處理模組
+│   └── auth.js              # 認證路由：處理 POST /signup (註冊) 和 POST /login (登入/重定向)
+├── public/                  # 靜態資源：直接提供給瀏覽器存取的檔案
+│   ├── htmx.min.js          # HTMX 核心函式庫 (用於 AJAX 請求)
+│   ├── remove-me.js         # HTMX 擴展 (用於 Toast 訊息自動消失)
+│   └── response-targets.min.js # HTMX 擴展 (用於自定義錯誤訊息目標)
+└── views/                   # Handlebars / HJS 模板文件 (View Templates)
+    ├── layout.hjs           # 主佈局模板：包含 HTML 骨架、CSS/JS 引入、置中樣式和 {{{content}}} 注入點
+    └── auth/                # 認證相關頁面模板
+        └── login.hjs        # 登入/註冊表單：包含頁面切換邏輯 (JS) 和 HTMX 表單屬性
 
