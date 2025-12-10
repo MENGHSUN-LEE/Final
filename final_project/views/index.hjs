@@ -1,0 +1,17 @@
+<div class="stack"> 
+    <h1 class="text-center">歡迎來到預期壽命數據工具</h1>
+    <h2 class="text-center" style="margin-bottom: 30px;">Life Expectancy Data Tool</h2>
+    
+    <p class="text-center">本網站提供全球國家/地區的出生時預期壽命數據的查詢、分析與維護功能。</p>
+
+    <div class="actions" style="margin-top: 40px;">
+        <button 
+            id="startBtn" 
+            class="btn-primary" 
+            type="button" 
+            onclick="window.location.href='/app';" 
+        >
+             Start
+        </button>
+    </div>
+</div>

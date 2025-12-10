@@ -1,0 +1,43 @@
+docker network create my-final-net
+
+--DataBase 的 docker --
+
+docker run --name final-mysql --env "MYSQL_ROOT_PASSWORD=417" --network my-final-net -p 3306:3306 --detach mysql:latest
+docker start final-mysql
+docker exec -it final-mysql mysql -p
+
+CREATE DATABASE final_db;
+USE final_db;
+
+CREATE TABLE Users (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    company VARCHAR(100),
+    email VARCHAR(100) NOT NULL UNIQUE,
+    phone VARCHAR(20),
+    password VARCHAR(255) NOT NULL,
+    plan VARCHAR(50) DEFAULT 'trial',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- 網頁的 docker --
+docker run -it --name final-dev --network my-final-net -p 8080:80 -v C:\Users\417\Documents\final\final_project:/app node bash
+
+cd /app
+npm install express mysql2 hjs 
+npm install htmx.org htmx-ext-response-targets 
+
+mkdir -p public 
+cp node_modules/htmx.org/dist/htmx.min.js public/
+cp node_modules/htmx-ext-response-targets/dist/response-targets.min.js public/
+cp node_modules/htmx.org/dist/ext/remove-me.js public/
+
+node app.js
+
+
+docker start final-dev
+docker exec -it final-dev bash
+cd /app
+node app.js
+
+
