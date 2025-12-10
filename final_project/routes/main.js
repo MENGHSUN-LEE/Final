@@ -11,7 +11,6 @@ function renderPage(res, templateName, title, data = {}) {
         res.render('layout', {
             title: title,
             body: html_content,
-            // 傳遞給 layout 的參數，用於控制導航列顯示的 Tab 類型
             tabType: data.tabType || 'none' 
         });
     });
