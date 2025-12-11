@@ -1,3 +1,4 @@
+```mermaid
 erDiagram
     %% 實體定義
     
@@ -42,3 +43,5 @@ erDiagram
     %% 由於 Data1 與 Regions 的關係是通過 Countries_3NF 間接建立的，
     %% 為了避免關係混亂並符合 3NF，建議移除 Data1 與 Regions 的直接連結。
     %% Data1 ||--o{ Regions : "filtered_by"
+
+    ```
