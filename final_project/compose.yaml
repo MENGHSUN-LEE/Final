@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------
+  # (1) 資料庫服務: final_project-mysql
+  # ----------------------------------------
+  final-mysql:
+    image: mysql:8.0 # 建議使用較新且穩定的版本
+    container_name: final-mysql
+    restart: unless-stopped
+    
+    environment:
+      # 請在本地環境或 .env 檔中設定更強的密碼
+      MYSQL_ROOT_PASSWORD: "YourSecureRootPassword" 
+      MYSQL_DATABASE: final_project_db
+      
+    ports:
+      # 將主機的 3306 映射到容器的 3306 (方便本地連接工具)
+      - "3306:3306" 
+
+    volumes:
+      - ./ETL.sql:/docker-entrypoint-initdb.d/ETL.sql
+      - ./data1.csv:/var/lib/mysql-files/data1.csv
+      - ./data2.csv:/var/lib/mysql-files/data2.csv
+      - mysql_data:/var/lib/mysql
+
+    # 必須開啟 local-infile 才能在 Docker 內使用 LOAD DATA INFILE
+    command: --local-infile=1 
+      
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pYourSecureRootPassword"]
+      interval: 10s
+      timeout: 5s
+      start_period: 120s # 給予足夠時間啟動
+      retries: 10
+
+    networks:
+      - final-project-net
+
+  # ----------------------------------------
+  # (2) 應用程式服務: final-dev (Node.js/Express)
+  # ----------------------------------------
+  final-dev:
+    build: . # 使用當前目錄下的 Dockerfile 進行建置
+    container_name: final-dev
+    restart: always
+    
+    # 映射埠號: 將主機的 8080 映射到容器的 8080
+    ports:
+      - "8080:80" 
+      
+    environment:
+      # 將資料庫連線資訊傳遞給 Node.js 應用程式
+      DB_HOST: final-mysql # 容器名稱即為 hostname
+      DB_USER: root
+      DB_PASSWORD: YourSecureRootPassword
+      DB_NAME: final_project_db
+
+    depends_on:
+      final-mysql:
+        # 確保資料庫服務健康後再啟動 Node.js 服務
+        condition: service_healthy 
+
+    networks:
+      - final-project-net
+
+# ----------------------------------------
+# 網路與資料卷
+# ----------------------------------------
+networks:
+  final-project-net:
+    name: final-project-net
+
+volumes:
+  mysql_data:

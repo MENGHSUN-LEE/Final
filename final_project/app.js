@@ -1,3 +1,4 @@
+const mysql = require('mysql2');
 const express = require('express');
 const db = require('mysql2'); 
 const app = express();
@@ -8,13 +9,12 @@ app.set('view engine', 'hjs');
 app.set('views', path.join(__dirname, 'views'));
 
 // 建立資料庫連線
-const connection = db.createConnection(configs.db);
+const connection = mysql.createConnection(configs.db);
 
 connection.connect((err) => {
     if (err) {
         console.log("Error connecting to database: ", err);
-        // 不再強制退出，以便在沒有資料庫連線的情況下也能運行空架構
-        // process.exit();
+
         console.log("Database connection failed. Running in standalone mode.");
     } else {
         console.log("Connected to database: final_db");

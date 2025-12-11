@@ -2,8 +2,8 @@ const config = {
     db: {
         host: "final-mysql", 
         user: "root", 
-        password: "417",
-        database: "final_db",
+        password: "YourSecureRootPassword", 
+        database: "final_project_db", 
         connectTimeout: 60000 
     },
 };
