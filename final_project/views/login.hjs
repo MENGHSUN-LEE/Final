@@ -2,25 +2,21 @@
     <h2 class="text-center">一般使用者登入</h2>
     <hr>
     <form action="/api/login" method="POST" id="loginForm">
-        
+
         <div class="form-group">
             <label for="email">電子郵件 / 帳號</label>
             <input type="email" id="email" name="email" required>
         </div>
-        
+
         <div class="form-group">
             <label for="password">密碼</label>
             <input type="password" id="password" name="password" required>
         </div>
-        
-        <button 
-            type="button" 
-            class="btn-primary" 
-            style="margin-top: 20px;"
-            onclick="window.location.href='/app/user';"  >
+
+        <button type="submit" class="btn-primary" style="margin-top: 20px;">
             登入
         </button>
-        
+
         <p class="text-center" style="margin-top: 15px;">
             <a href="/">返回首頁</a> | <a href="/signup">註冊帳號</a>
         </p>
@@ -29,13 +25,15 @@
 
 <style>
     .form-group {
-        margin-bottom: 15px; 
+        margin-bottom: 15px;
     }
+
     #loginForm label {
         display: block;
         margin-bottom: 5px;
         font-weight: bold;
     }
+
     #loginForm input[type="email"],
     #loginForm input[type="password"] {
         width: 100%;

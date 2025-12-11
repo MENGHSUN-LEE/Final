@@ -1,24 +1,105 @@
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+
 <div class="stack">
-    <h2>自選功能 - 進階分析</h2>
-    <p>此分頁用於實現：**多國家歷年趨勢對比圖表**。</p>
+    <h2>自選功能 - 多國家趨勢對比</h2>
+    <p>選擇多個國家，比較其歷年出生預期壽命的趨勢圖表。</p>
     <hr>
 
     <fieldset style="margin-top: 20px;">
-        <legend>8. 多國家趨勢對比</legend>
-        <div class="form-group">
-            <label for="countrySelectMulti">選擇多個國家 (使用 Ctrl/Cmd 選擇):</label>
-            <select id="countrySelectMulti" multiple size="5" style="width: 100%; min-height: 100px;">
-                <option value="TWN">台灣 (Placeholder)</option>
-                <option value="JPN">日本 (Placeholder)</option>
-                <option value="USA">美國 (Placeholder)</option>
-                <option value="CHN">中國 (Placeholder)</option>
-                <option value="KOR">韓國 (Placeholder)</option>
-            </select>
-        </div>
-        <button class="btn-secondary" style="margin-top: 10px;">顯示對比趨勢</button>
-        <div id="multiTrendChart" style="margin-top: 15px; border: 1px dashed #ccc; padding: 20px; text-align: center; min-height: 300px;">
-            多國家趨勢對比圖表將在這裡顯示...
+        <legend>8. 多國家趨勢對比圖表</legend>
+
+        <form id="multiTrendForm" onsubmit="return false;">
+            <div class="form-group">
+                <label for="countrySelectMulti">選擇國家 (按住 Ctrl/Cmd 可多選):</label>
+                <select id="countrySelectMulti" name="countries" multiple size="8"
+                    style="width: 100%; min-height: 150px;" hx-get="/api/html/countries" /* 重複使用國家列表API */
+                    hx-trigger="load" hx-target="this" hx-swap="innerHTML">
+                    <option value="" disabled selected>-- 載入中... --</option>
+                </select>
+            </div>
+
+            <button id="multiSearchBtn" class="btn-primary" type="button" style="margin-top: 10px;"
+                onclick="loadMultiTrendChart()" /* 【關鍵】點擊時調用 JS 函式 */>
+                繪製對比趨勢圖表
+            </button>
+        </form>
+
+        <div id="chartContainer"
+            style="margin-top: 20px; border: 1px dashed #ccc; padding: 10px; min-height: 400px; width: 100%;">
+            請選擇國家後，點擊按鈕繪製圖表。
         </div>
     </fieldset>
 
+    <script>
+        function loadMultiTrendChart() {
+            const selectElement = document.getElementById('countrySelectMulti');
+            const selectedOptions = Array.from(selectElement.selectedOptions);
+
+            if (selectedOptions.length === 0) {
+                alert("請選擇至少一個國家！");
+                return;
+            }
+
+            // 提取選中的國家值 (value)，並用逗號連接
+            const countriesString = selectedOptions.map(option => option.value).join(',');
+
+            const chartContainer = document.getElementById('chartContainer');
+            chartContainer.innerHTML = '正在載入數據和繪製圖表...'; // 顯示載入訊息
+
+            // 1. 發送 AJAX 請求獲取 JSON 數據
+            fetch(`/api/custom/multi_trend?countries=${countriesString}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`伺服器錯誤: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(seriesData => {
+                    // 2. 數據成功獲取後，使用 Highcharts 繪製圖表
+                    Highcharts.chart('chartContainer', {
+                        chart: {
+                            type: 'line',
+                            zoomType: 'x' // 允許 X 軸縮放
+                        },
+                        title: {
+                            text: '多國家歷年出生預期壽命對比'
+                        },
+                        subtitle: {
+                            text: `對比國家數量: ${seriesData.length}`
+                        },
+                        xAxis: {
+                            title: {
+                                text: '年份 (Year)'
+                            },
+                            tickInterval: 10 // 每十年一個刻度
+                        },
+                        yAxis: {
+                            title: {
+                                text: '預期壽命 (年)'
+                            }
+                        },
+                        tooltip: {
+                            pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y:.2f}</b> 年<br/>',
+                            shared: true
+                        },
+                        plotOptions: {
+                            series: {
+                                marker: {
+                                    enabled: false // 隱藏數據點標記
+                                }
+                            }
+                        },
+                        // 將後端回傳的數據系列 (Series) 傳入
+                        series: seriesData
+                    });
+                })
+                .catch(error => {
+                    console.error('繪圖失敗:', error);
+                    chartContainer.innerHTML = `<span style="color: red;">圖表繪製失敗或數據載入錯誤: ${error.message}</span>`;
+                });
+        }
+    </script>
+    
 </div>

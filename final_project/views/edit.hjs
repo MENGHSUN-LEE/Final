@@ -5,71 +5,98 @@
 
     <fieldset style="margin-top: 20px;">
         <legend>5. 新增記錄 (下一年度)</legend>
-        <div style="display: flex; gap: 20px;">
-            <div class="form-group" style="flex: 1;">
-                <label for="countrySelectAdd">選擇國家:</label>
-                <select id="countrySelectAdd" style="width: 100%;">
-                    <option value="" disabled selected>-- 選擇國家 --</option>
-                    <option value="TWN">台灣 (Placeholder)</option>
-                </select>
+        <form hx-post="/api/edit/add_next_year" hx-target="#editMessage5" hx-swap="innerHTML">
+            <div style="display: flex; gap: 20px;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="countrySelectAdd">選擇國家:</label>
+                    <select 
+                        id="countrySelectAdd" 
+                        name="country" 
+                        style="width: 100%;"
+                        hx-get="/api/html/countries"
+                        hx-trigger="load"
+                        hx-target="this"
+                        hx-swap="innerHTML"
+                    >
+                        <option value="" disabled selected>-- 載入中... --</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="nextYearPlaceholder">預計新增年份 (最新年份 + 1):</label>
+                    <input type="text" id="nextYearPlaceholder" name="year_to_add" placeholder="例如 2024" required style="width: 100%;">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="lifeExpectancyAdd">預期壽命 (年):</label>
+                    <input type="number" step="0.0001" id="lifeExpectancyAdd" name="life_expectancy" placeholder="例如 78.5000" required style="width: 100%;">
+                </div>
             </div>
-            <div class="form-group" style="flex: 1;">
-                <label for="nextYearPlaceholder">預計新增年份:</label>
-                <input type="text" id="nextYearPlaceholder" value="2024 (Latest + 1)" disabled style="width: 100%;">
-            </div>
-            <div class="form-group" style="flex: 1;">
-                <label for="lifeExpectancyAdd">預期壽命 (年):</label>
-                <input type="number" step="0.01" id="lifeExpectancyAdd" placeholder="例如 78.50" style="width: 100%;">
-            </div>
-        </div>
-        <button class="btn-primary" style="margin-top: 10px;">新增記錄</button>
+            <button type="submit" class="btn-primary" style="margin-top: 10px;">新增記錄</button>
+        </form>
+        <div id="editMessage5" class="edit-message" style="margin-top: 10px; color: green;"></div>
     </fieldset>
 
     <fieldset style="margin-top: 20px;">
         <legend>6. 更新記錄</legend>
-        <div style="display: flex; gap: 20px;">
-            <div class="form-group" style="flex: 1;">
-                <label for="countrySelectUpdate">選擇國家:</label>
-                <select id="countrySelectUpdate" style="width: 100%;">
-                    <option value="" disabled selected>-- 選擇國家 --</option>
-                    <option value="TWN">台灣 (Placeholder)</option>
-                </select>
+        <form hx-post="/api/edit/update_record" hx-target="#editMessage6" hx-swap="innerHTML">
+            <div style="display: flex; gap: 20px;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="countrySelectUpdate">選擇國家:</label>
+                    <select 
+                        id="countrySelectUpdate" 
+                        name="country" 
+                        style="width: 100%;"
+                        hx-get="/api/html/countries"
+                        hx-trigger="load"
+                        hx-target="this"
+                        hx-swap="innerHTML"
+                    >
+                        <option value="" disabled selected>-- 載入中... --</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="yearSelectUpdate">選擇年份:</label>
+                    <input type="number" id="yearSelectUpdate" name="year" placeholder="例如 2023" required style="width: 100%;">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="lifeExpectancyUpdate">新的預期壽命:</label>
+                    <input type="number" step="0.0001" id="lifeExpectancyUpdate" name="life_expectancy" placeholder="例如 79.1000" required style="width: 100%;">
+                </div>
             </div>
-            <div class="form-group" style="flex: 1;">
-                <label for="yearSelectUpdate">選擇年份:</label>
-                <select id="yearSelectUpdate" style="width: 100%;">
-                    <option value="" disabled selected>-- 選擇年份 --</option>
-                    <option value="2023">2023 (Placeholder)</option>
-                </select>
-            </div>
-            <div class="form-group" style="flex: 1;">
-                <label for="lifeExpectancyUpdate">新的預期壽命:</label>
-                <input type="number" step="0.01" id="lifeExpectancyUpdate" placeholder="例如 79.10" style="width: 100%;">
-            </div>
-        </div>
-        <button class="btn-primary" style="margin-top: 10px;">更新記錄</button>
+            <button type="submit" class="btn-primary" style="margin-top: 10px;">更新記錄</button>
+        </form>
+        <div id="editMessage6" class="edit-message" style="margin-top: 10px; color: green;"></div>
     </fieldset>
 
     <fieldset style="margin-top: 20px;">
         <legend>7. 刪除年份範圍記錄</legend>
-        <div style="display: flex; gap: 20px;">
-            <div class="form-group" style="flex: 1;">
-                <label for="countrySelectDelete">選擇國家:</label>
-                <select id="countrySelectDelete" style="width: 100%;">
-                    <option value="" disabled selected>-- 選擇國家 --</option>
-                    <option value="TWN">台灣 (Placeholder)</option>
-                </select>
+        <form hx-post="/api/edit/delete_range" hx-target="#editMessage7" hx-swap="innerHTML">
+            <div style="display: flex; gap: 20px;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="countrySelectDelete">選擇國家:</label>
+                    <select 
+                        id="countrySelectDelete" 
+                        name="country" 
+                        style="width: 100%;"
+                        hx-get="/api/html/countries"
+                        hx-trigger="load"
+                        hx-target="this"
+                        hx-swap="innerHTML"
+                    >
+                        <option value="" disabled selected>-- 載入中... --</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="yearStartDelete">起始年份:</label>
+                    <input type="number" id="yearStartDelete" name="start_year" placeholder="例如 2010" required style="width: 100%;">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="yearEndDelete">結束年份:</label>
+                    <input type="number" id="yearEndDelete" name="end_year" placeholder="例如 2015" required style="width: 100%;">
+                </div>
             </div>
-            <div class="form-group" style="flex: 1;">
-                <label for="yearStartDelete">起始年份:</label>
-                <input type="number" id="yearStartDelete" placeholder="例如 2010" style="width: 100%;">
-            </div>
-            <div class="form-group" style="flex: 1;">
-                <label for="yearEndDelete">結束年份:</label>
-                <input type="number" id="yearEndDelete" placeholder="例如 2015" style="width: 100%;">
-            </div>
-        </div>
-        <button class="btn-danger" style="margin-top: 10px;">確認刪除記錄</button>
+            <button type="submit" class="btn-danger" style="margin-top: 10px;">確認刪除記錄</button>
+        </form>
+        <div id="editMessage7" class="edit-message" style="margin-top: 10px; color: green;"></div>
     </fieldset>
 
 </div>
