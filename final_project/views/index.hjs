@@ -1,28 +1,26 @@
-<div class="stack"> 
+<div class="card stack">
     <h1 class="text-center">歡迎來到預期壽命數據工具</h1>
     <h2 class="text-center" style="margin-bottom: 30px;">Life Expectancy Data Tool</h2>
-    
-    <p class="text-center">請選擇您的存取方式：</p>
 
-    <div class="actions" style="margin-top: 40px;">
-        <button 
-            id="guestLoginBtn" 
-            class="btn" 
-            type="button" 
-            style="width: 50%; font-size: 16px; margin-right: 10px;"
-            onclick="window.location.href='/app/guest';" 
-        >
-            訪客登入 (僅搜尋)
+    <p class="text-center">本網站提供全球國家/地區的出生時預期壽命數據的查詢、分析與維護功能。</p>
+
+    <div class="actions" style="margin-top: 40px; display: flex; flex-direction: column; gap: 15px;">
+
+        <button class="btn-secondary" type="button" onclick="window.location.href='/app/guest';"
+            style="padding: 15px 40px !important; font-size: 18px; width: 100%;">
+            訪客登入 (僅查詢)
         </button>
 
-        <button 
-            id="memberLoginBtn" 
-            class="btn-primary" 
-            type="button" 
-            style="width: 50%; font-size: 16px; margin-left: 10px;"
-            onclick="window.location.href='/login';" 
-        >
-            會員登入
+        <button class="btn-primary" type="button" onclick="window.location.href='/login';"
+            style="padding: 15px 40px !important; font-size: 18px; width: 100%;">
+            一般登入 (完整功能)
+        </button>
+
+        <hr style="width: 80%; border: 0; border-top: 1px solid #ddd; margin: 15px auto;">
+
+        <button class="btn-tertiary" type="button" onclick="window.location.href='/signup';"
+            style="padding: 10px 20px !important; font-size: 16px; width: 50%; margin: 0 auto;">
+            註冊帳號
         </button>
     </div>
 </div>

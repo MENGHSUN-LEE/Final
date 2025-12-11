@@ -1,0 +1,54 @@
+<div class="card stack">
+    <h2 class="text-center">註冊新帳號</h2>
+    <hr>
+    <form action="/api/register" method="POST" id="signupForm">
+        
+        <div class="form-group">
+            <label for="name">姓名</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">電子郵件</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">密碼</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        
+        <button type="submit" class="btn-primary" style="margin-top: 20px;">
+            註冊
+        </button>
+        
+        <p class="text-center" style="margin-top: 15px;">
+            <a href="/">返回首頁</a>
+        </p>
+    </form>
+</div>
+
+<style>
+    /* 讓每個表單組件獨佔一行並提供間距 */
+    .form-group {
+        margin-bottom: 15px; 
+    }
+    
+    /* 讓 Label 獨佔一行 */
+    #signupForm label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    
+    /* 讓 Input 獨佔一行並佔滿寬度 */
+    #signupForm input[type="text"],
+    #signupForm input[type="email"],
+    #signupForm input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box; /* 確保 padding 和 border 不會增加寬度 */
+    }
+</style>

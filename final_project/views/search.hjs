@@ -1,0 +1,109 @@
+<div class="stack">
+    <h2>搜尋 - 數據查詢與分析</h2>
+    <p>此處將實作：單一國家趨勢、區域排名、關鍵字查找等功能。</p>
+    <hr>
+
+    <fieldset style="margin-top: 20px;">
+        <legend>1. 單一國家歷年趨勢</legend>
+        <div class="form-group">
+            <label for="countrySelect1">選擇國家:</label>
+            <select id="countrySelect1" class="full-width-select" style="width: 100%;" name="country"
+                hx-get="/api/html/countries" hx-trigger="load" hx-target="#countrySelect1" hx-swap="innerHTML">
+                <option value="" disabled selected>-- 載入中... --</option>
+            </select>
+        </div>
+
+        <button id="searchTrendBtn" class="btn-secondary" style="margin-top: 10px;" hx-get="/api/search/country_trend"
+            hx-include="#countrySelect1" hx-target="#countryTrendChart" hx-swap="innerHTML">
+            查詢歷年趨勢
+        </button>
+
+        <div id="countryTrendChart"
+            style="margin-top: 15px; padding: 20px; min-height: 200px; border: 1px dashed #ccc; text-align: center;">
+            請從上方下拉選單選擇一個國家並點擊「查詢歷年趨勢」按鈕。
+        </div>
+    </fieldset>
+    <fieldset style="margin-top: 20px;">
+        <legend>2. 特定區域排名</legend>
+        <div style="display: flex; gap: 20px;">
+            <div class="form-group" style="flex: 1;">
+                <label for="subRegionSelect">選擇區域:</label>
+                <select id="subRegionSelect" name="region_code" style="width: 100%;">
+                    <option value="" disabled selected>-- 選擇區域 --</option>
+                    <option value="2">Africa</option>
+                    <option value="19">Americas</option>
+                    <option value="142">Asia</option>
+                    <option value="150">Europe</option>
+                    <option value="9">Oceania</option>
+                </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label for="yearSelect2">選擇年份:</label>
+                <select id="yearSelect2" name="year" style="width: 100%;" hx-get="/api/html/years" hx-trigger="load"
+                    hx-target="#yearSelect2" hx-swap="innerHTML">
+                    <option value="" disabled selected>-- 載入中... --</option>
+                </select>
+            </div>
+        </div>
+
+        <button id="searchRankBtn" class="btn-secondary" style="margin-top: 10px;" hx-get="/api/search/subregion_rank"
+            hx-include="#subRegionSelect, #yearSelect2" hx-target="#subRegionRank" hx-swap="innerHTML">
+            查詢區域排名
+        </button>
+
+        <div id="subRegionRank"
+            style="margin-top: 15px; border: 1px dashed #ccc; padding: 20px; text-align: center; min-height: 100px;">
+            排名結果將在這裡顯示...
+        </div>
+    </fieldset>
+    <fieldset style="margin-top: 20px;">
+        <legend>3. 區域最大預期壽命</legend>
+        <div style="display: flex; gap: 20px;">
+            <div class="form-group" style="flex: 1;">
+                <label for="regionSelect3">選擇區域:</label>
+                <select id="regionSelect3" name="region_code" style="width: 100%;">
+                    <option value="" disabled selected>-- 選擇區域 --</option>
+                    <option value="2">Africa</option>
+                    <option value="19">Americas</option>
+                    <option value="142">Asia</option>
+                    <option value="150">Europe</option>
+                    <option value="9">Oceania</option>
+                </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label for="yearSelect3">選擇年份:</label>
+                <select id="yearSelect3" name="year" style="width: 100%;" hx-get="/api/html/years" hx-trigger="load"
+                    hx-target="#yearSelect3" hx-swap="innerHTML">
+                    <option value="" disabled selected>-- 載入中... --</option>
+                </select>
+            </div>
+        </div>
+        <button id="searchMaxLEBtn" class="btn-secondary" style="margin-top: 10px;" hx-get="/api/search/region_max_le"
+            hx-include="#regionSelect3, #yearSelect3" hx-target="#maxLifeExpectancy" hx-swap="innerHTML">
+            查詢次區域最大值
+        </button>
+
+        <div id="maxLifeExpectancy"
+            style="margin-top: 15px; border: 1px dashed #ccc; padding: 20px; text-align: center; min-height: 100px;">
+            區域/次區域結果將在這裡顯示...
+        </div>
+    </fieldset>
+    <fieldset style="margin-top: 20px;">
+        <legend>4. 國家名稱關鍵字搜尋</legend>
+        <div class="form-group">
+            <label for="keywordInput">輸入國家關鍵字:</label>
+            <input type="text" id="keywordInput" name="keyword" placeholder="例如：Taiwan"
+                style="width: 100%; padding: 8px;">
+        </div>
+
+        <button id="keywordSearchBtn" class="btn-secondary" style="margin-top: 10px;" hx-get="/api/search/keyword"
+            hx-include="#keywordInput" hx-target="#keywordResults" hx-swap="innerHTML">
+            執行關鍵字搜尋
+        </button>
+
+        <div id="keywordResults"
+            style="margin-top: 15px; border: 1px dashed #ccc; padding: 20px; text-align: center; min-height: 100px;">
+            結果將顯示匹配的國家及最近年份壽命...
+        </div>
+    </fieldset>
+</div>
