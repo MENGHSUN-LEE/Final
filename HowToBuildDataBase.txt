@@ -12,6 +12,7 @@ docker exec -it final-mysql mysql -p
 -- 建立可以導入csv的資料表 --
 
 CREATE DATABASE final_db;
+
 USE final_db;
 
 CREATE TABLE data1 (
@@ -153,6 +154,103 @@ WHERE Code NOT IN (
     SELECT alpha3 FROM countries
 );
 
+-- 刪除data2
+DROP TABLE IF EXISTS data2;
+
+-- 新增使用者表格
+CREATE TABLE Users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20),
+    password CHAR(64) NOT NULL, -- 假設使用 SHA-256 儲存密碼
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 新增編輯記錄表格
+CREATE TABLE data_audit (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    data_entity VARCHAR(100) NOT NULL, -- 被修改的國家名稱
+    data_year INT NOT NULL,           -- 被修改的年份
+    old_value DECIMAL(8,4),           -- 舊的預期壽命值 (DELETE或UPDATE時記錄)
+    new_value DECIMAL(8,4),           -- 新的預期壽命值 (INSERT或UPDATE時記錄)
+    operation_type ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
+    user_id INT,                      -- 執行操作的使用者 ID (外鍵參考 Users.id)
+    operation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (user_id) REFERENCES Users(id)
+);
+
+-- 拆解 countries
+CREATE TABLE regions (
+    region_code INT PRIMARY KEY,
+    region_name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE subregions (
+    subregion_code INT PRIMARY KEY,
+    subregion_name VARCHAR(50) UNIQUE NOT NULL,
+    region_code INT NOT NULL,
+    FOREIGN KEY (region_code) REFERENCES regions(region_code)
+);
+
+CREATE TABLE intermediate_regions (
+    intermediate_region_code INT PRIMARY KEY,
+    intermediate_region_name VARCHAR(50) UNIQUE NOT NULL,
+    subregion_code INT NOT NULL,
+    FOREIGN KEY (subregion_code) REFERENCES subregions(subregion_code)
+);
+
+CREATE TABLE countries_3nf (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    alpha2 CHAR(2),
+    alpha3 CHAR(3),
+    country_code INT,
+    iso3166_2 VARCHAR(20),
+
+    -- 只保留代碼，並設定為外鍵
+    region_code INT,
+    subregion_code INT,
+    intermediate_region_code INT,
+
+    FOREIGN KEY (region_code) REFERENCES regions(region_code),
+    FOREIGN KEY (subregion_code) REFERENCES subregions(subregion_code),
+    FOREIGN KEY (intermediate_region_code) REFERENCES intermediate_regions(intermediate_region_code)
+);
+
+INSERT INTO regions (region_code, region_name)
+SELECT DISTINCT region_code, region
+FROM countries
+WHERE region IS NOT NULL AND region_code IS NOT NULL;
+
+
+INSERT INTO subregions (subregion_code, subregion_name, region_code)
+SELECT DISTINCT subregion_code, subregion, region_code
+FROM countries
+WHERE subregion IS NOT NULL AND subregion_code IS NOT NULL;
+
+INSERT INTO intermediate_regions (intermediate_region_code, intermediate_region_name, subregion_code)
+SELECT DISTINCT intermediate_region_code, intermediate_region, subregion_code
+FROM countries
+WHERE intermediate_region IS NOT NULL AND intermediate_region_code IS NOT NULL;
+
+INSERT INTO countries_3nf (
+    id, name, alpha2, alpha3, country_code, iso3166_2,
+    region_code, subregion_code, intermediate_region_code
+)
+SELECT 
+    id, name, alpha2, alpha3, country_code, iso3166_2,
+    region_code, subregion_code, intermediate_region_code
+FROM countries;
+
+DROP TABLE IF EXISTS countries;
+
+
+
+
+
+
 
 -- 網頁的 docker --
 docker run -it --name final-dev --network my-final-net -p 8080:80 -v C:\Users\417\Documents\final\final_project:/app node bash
@@ -174,6 +272,12 @@ docker exec -it final-dev bash
 cd /app
 node app.js
 
+-- compose
+cd Documents\final\final_project
+docker compose up -d --build
+docker compose down
+docker logs final-dev
+
 
 
 final_project/
@@ -189,4 +293,6 @@ final_project/
     ├── layout.hjs           # 主佈局模板：包含 HTML 骨架、CSS/JS 引入、置中樣式和 {{{content}}} 注入點
     └── auth/                # 認證相關頁面模板
         └── login.hjs        # 登入/註冊表單：包含頁面切換邏輯 (JS) 和 HTMX 表單屬性
+
+
 
