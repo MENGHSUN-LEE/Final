@@ -1,5 +1,6 @@
 # Final
 
+```mermaid
 erDiagram
     Users {
         int id PK
