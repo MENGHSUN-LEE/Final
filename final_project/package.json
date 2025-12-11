@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "express": "^5.2.1",
+    "hjs": "^0.0.6",
+    "htmx-ext-response-targets": "^2.0.4",
+    "htmx.org": "^2.0.8",
+    "mysql2": "^3.15.3"
+  },
+  "scripts": {
+    "start": "node app.js"
+  }
+}
